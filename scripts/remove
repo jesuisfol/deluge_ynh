@@ -1,0 +1,12 @@
+#!/bin/bash
+
+app_name="deluge"
+domain=$(sudo yunohost app setting $app_name domain)
+
+sudo apt-get autoremove deluge-web
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app_name.conf
+sudo rm /etc/default/deluge-daemon
+sudo rm /etc/init.d/deluge-daemon
+
+sudo service php5-fpm restart
+sudo service nginx reload

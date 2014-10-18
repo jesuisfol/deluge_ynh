@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Retrieve arguments
+domain=$1
+path=$2
+
+app_name="deluge"
+
+# Check domain/path availability
+sudo yunohost app checkurl $domain$path -a $app_name
+if [[ ! $? -eq 0 ]]; then
+    exit 1
+fi
+
+# Install needed packages
+sudo apt-get install deluge-web -y -qq
+
+# Copy files required to daemonize deluge
+sudo cp ../sources/etc_default /etc/default/deluge-daemon
+sudo cp ../sources/etc_default /etc/init.d/deluge-daemon
+sudo chmod 755 /etc/init.d/deluge-daemon
+sudo update-rc.d deluge-daemon defaults
+sudo invoke-rc.d deluge-daemon start
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+sed -i "s@YNH_WWW_PATH@$path@g" ../conf/nginx.conf
+sed -i "s@YNH_WWW_ALIAS@$final_path/@g" ../conf/nginx.conf
+nginxconf=/etc/nginx/conf.d/$domain.d/$app_name.conf
+sudo cp ../conf/nginx.conf $nginxconf
+sudo chown root: $nginxconf
+sudo chmod 600 $nginxconf
+
+# Monitor service
+sudo yunohost service add transmission-daemon
+
+# reload nginx, ssowat and deluge
+sudo service nginx reload
+sudo yunohost app ssowatconf
+sudo service deluge start

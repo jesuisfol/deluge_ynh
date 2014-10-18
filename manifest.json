@@ -1,0 +1,34 @@
+{
+    "name": "Deluge",
+    "id": "deluge",
+    "description": {
+        "en": "Deluge is a lightweight, Free Software, cross-platform BitTorrent client"
+    },
+    "developer": {
+        "name": "Fol",
+        "email": "fol@fol.tf",
+        "url": "https://github.com/jesuisfol/deluge_ynh"
+    },
+    "multi_instance": "true",
+    "arguments": {
+        "install" : [
+            {
+                "name": "domain",
+                "ask": {
+                    "en": "Choose a domain for Deluge",
+                    "fr": "Choisissez un domaine pour Deluge"
+                },
+                "example": "domain.org"
+            },
+            {
+                "name": "path",
+                "ask": {
+                    "en": "Choose a path for Deluge",
+                    "fr": "Choisissez un chemin pour Deluge"
+                },
+                "example": "/deluge",
+                "default": "/deluge"
+            }
+        ]
+    }
+}

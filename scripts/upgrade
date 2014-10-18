@@ -1,0 +1,23 @@
+#!/bin/bash
+
+app_name="deluge"
+
+domain=$(sudo yunohost app setting $app_name domain)
+path=$(sudo yunohost app setting $app_name path)
+
+# Remove trailing "/" for next commands
+path=${path%/}
+
+# Upgrade official debian package
+sudo apt-get install deluge-web -y -qq 
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+sed -i "s@YNH_WWW_PATH@$path@g" ../conf/nginx.conf
+nginxconf=/etc/nginx/conf.d/$domain.d/$app_name.conf
+sudo cp ../conf/nginx.conf $nginxconf
+sudo chown root: $nginxconf
+sudo chmod 600 $nginxconf
+
+sudo service nginx reload
+sudo yunohost app ssowatconf
+sudo service deluge-daemon reload
