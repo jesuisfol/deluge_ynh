@@ -4,4 +4,4 @@
 DELUGED_USER="deluge"
 
 # Should we run at startup?
-RUN_AT_STARTUP="YES
+RUN_AT_STARTUP="YES"

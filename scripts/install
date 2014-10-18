@@ -12,15 +12,32 @@ if [[ ! $? -eq 0 ]]; then
     exit 1
 fi
 
+# Check port availability
+sudo yunohost app checkport 8112
+if [[ ! $? -eq 0 ]]; then
+  exit 1
+fi
+
 # Install needed packages
-sudo apt-get install deluge-web -y -qq
+sudo apt-get install deluged deluge-console deluge-web -y -qq
+
+# Create the deluge user
+sudo useradd deluge
 
 # Copy files required to daemonize deluge
-sudo cp ../sources/etc_default /etc/default/deluge-daemon
-sudo cp ../sources/etc_default /etc/init.d/deluge-daemon
+sudo cp ../conf/etc_default /etc/default/deluge-daemon
+sudo cp ../conf/etc_initd /etc/init.d/deluge-daemon
 sudo chmod 755 /etc/init.d/deluge-daemon
 sudo update-rc.d deluge-daemon defaults
 sudo invoke-rc.d deluge-daemon start
+
+# Create log directories
+sudo mkdir -p /var/log/deluge/daemon
+sudo mkdir /var/log/deluge/web
+sudo chmod -R 755 /var/log/deluge
+sudo chown -R deluge /var/log/deluge
+# Activate logrotate
+sudo cp ../conf/logrotate /etc/logrotate.d/deluge 
 
 # Modify Nginx configuration file and copy it to Nginx conf directory
 sed -i "s@YNH_WWW_PATH@$path@g" ../conf/nginx.conf
@@ -31,9 +48,9 @@ sudo chown root: $nginxconf
 sudo chmod 600 $nginxconf
 
 # Monitor service
-sudo yunohost service add transmission-daemon
+sudo yunohost service add deluge-daemon
 
 # reload nginx, ssowat and deluge
 sudo service nginx reload
 sudo yunohost app ssowatconf
-sudo service deluge start
+sudo service deluge-daemon start
